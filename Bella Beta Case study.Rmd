@@ -1,0 +1,172 @@
+---
+title: "Bella Beta Case study"
+author: "Shubham Mohan Kadam"
+date: '2022-04-28'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## INTRODUCTION
+
+Bellabeat is high-tech company that manufacture health focus products. They develop beautifully designed technology smart products that inspire and inform women around the world. the tech smart products is focus on women activity, sleep and stress so that they will be able to study their health and related issues. Bellabeat was founded in 2013 and since then it has grown rapidly and position itself as a tech-driven company for women.
+
+As at 2016, Bellabeat has opened offices around the world and its presence is now recognised with many retailers in addition to its own traditional e-commerce website. It has invested heavily in traditional media for advertisement such as Radio, Billboard, Television also invested in online media such as Facebook and instagram page, it has engaged consumer in Twitter page, Bellabeat also make its presence in Google search and so on.
+
+Sršen knows that an analysis of Bellabeat’s available consumer data would reveal more opportunities for growth. She wants the marketing analytics team to focus on a Bellabeat product and analyze smart device usage data in order to gain insight into how people are already using their smart devices. Then, using this information, she would like high-level recommendations for how these trends can inform Bellabeat marketing strategy.
+
+## Identification of the Business task
+
+The business task is to utilize the consumer various data to perform analysis into Bellabeat products being use and gain insight into people who are already using the smart device and then to give high-level recommendations for how the trend can inform marketing strategy of Bellabeat. For a logical report, to accomplish this, the data analysis process is very crucial which are:
+
+* Ask
+* Prepare
+* Process
+* Analyze
+* Share
+* Act
+
+## Identification of key stakeholders
+
+Key stakeholders are the characters that play major roles in Bellabeat smart device production:
+
+* Urška Sršen: Bellabeat’s cofounder and Chief Creative Officer.
+* Sando Mur: Mathematician and Bellabeat’s cofounder; key member of the Bellabeat executive team
+* Bellabeat marketing analytics team: A team of data analysts responsible for collecting, analyzing, and reporting data *that helps guide Bellabeat’s marketing strategy.
+
+##PREPARE AND POCESS
+
+## INSTALLING & LOADING REQUIRED PACKAGES
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(skimr)
+library(lubridate)
+library(janitor)
+library(ggplot2)
+```
+## Importing required Data
+
+```{r}
+dailyActivity <- read.csv('dailyActivity_merged.csv')
+sleepDay <- read.csv('sleepDay_merged.csv')
+dailyCalories <- read.csv('dailyCalories_merged.csv')
+heartrate <- read.csv('heartrate_seconds_merged.csv')
+dailyIntensities <- read.csv('dailyIntensities_merged.csv')
+weight <- read.csv('weightLogInfo_merged.csv')
+```
+## Wranggling and Cleaning data
+
+```{r}
+str(dailyActivity)
+str(sleepDay)
+str(dailyCalories)
+str(heartrate)
+str(dailyIntensities)
+str(weight)
+
+colnames(dailyActivity)
+colnames(sleepDay)
+colnames(dailyCalories)
+colnames(heartrate)
+colnames(dailyIntensities)
+colnames(weight)
+```
+
+## Changing the date from character to date format
+
+
+```{r}
+dailyActivity$ActivityDate <- as.Date(dailyActivity$ActivityDate, format = "%m/%d/%Y")
+
+sleepDay$SleepDay <- as.Date(sleepDay$SleepDay, format = "%m/%d/%Y")
+
+dailyIntensities$ActivityDay <- as.Date(dailyIntensities$ActivityDay, format = "%m/%d/%Y")
+
+dailyCalories$ActivityDay <- as.Date(dailyCalories$ActivityDay, format = "%m/%d/%Y")
+
+weight$Date <- as.Date(weight$Date, format = "%m/%d/%Y")
+```
+
+## Checking the class
+
+```{r}
+class(dailyActivity$ActivityDate)
+dailyActivity$ActivityDate [1]
+class(sleepDay$SleepDay)
+sleepDay$SleepDay [1]
+class(dailyIntensities$ActivityDay)
+dailyIntensities$ActivityDay [1]
+class(dailyCalories$ActivityDay)
+dailyCalories$ActivityDay [1]
+class(weight$Date)
+weight$Date [1]
+```
+
+## Summary and Checking for missing data (NA)
+
+```{r}
+sum(is.na(dailyActivity))
+
+sum(is.na(sleepDay))
+
+sum(is.na(dailyIntensities))
+
+sum(is.na(dailyCalories))
+
+sum(is.na(weight))
+```
+
+## Checking for unique Ids in all data set
+
+```{r}
+n_distinct(dailyActivity$Id)
+
+n_distinct(sleepDay$Id)
+
+n_distinct(dailyIntensities$Id)
+
+n_distinct(dailyCalories$Id)
+
+n_distinct(weight$Id)
+
+```
+
+## Transformation of some data for better visualization
+
+```{r}
+sleepDay <- sleepDay %>% rename(Date = SleepDay)
+
+dailyActivity <- dailyActivity %>% rename(Date = ActivityDate)
+
+dailyIntensities <- dailyIntensities %>% rename(Date = ActivityDay)
+
+ActiveSleep <- merge(sleepDay, dailyActivity, by=c("Id", "Date"))
+
+IntensityWeight <- merge(dailyIntensities, weight, by=c("Id", "Date"))
+```
+
+## Visualizations and Insights
+
+```{r}
+ggplot(data = ActiveSleep)+ geom_smooth(mapping = aes(x=TotalSteps, y=VeryActiveDistance))+ geom_point(mapping = aes(x=TotalSteps, y=VeryActiveDistance))+labs(title = "TotalSteps vs VeryActiveDistance")
+
+ggplot(data = IntensityWeight)+ geom_point(mapping = aes(x=VeryActiveMinutes, y=VeryActiveDistance))+geom_smooth(mapping = aes(x=VeryActiveMinutes, y=VeryActiveDistance))+labs(title = "Distance vs Minutes")
+
+ggplot(data = ActiveSleep)+ geom_smooth(mapping = aes(x=TotalDistance, y=Calories))+geom_point(mapping = aes(x=TotalDistance, y=Calories))+labs(title = "TotalDistance vs Calories")
+
+ggplot(data = ActiveSleep)+ geom_smooth(mapping = aes(x=TotalMinutesAsleep, y=TotalTimeInBed))+geom_point(mapping = aes(x=TotalMinutesAsleep, y=TotalTimeInBed))+labs(title = "Minutes Asleep vs Time In Bed")
+
+```
+
+
+## Summary
+
+* The analysis has shown that there’s positive correlation between the total steps taken by the users and the distance covered, meanwhile the most active period is recorded to be within the first 100 minutes.
+
+* The analysis has shown that the steps taken has linear and positive correlation with calories burnt by the users.
+
+* The analysis has shown that the total time in bed has relationship with the total minutes asleep.
